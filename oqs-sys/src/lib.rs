@@ -1,5 +1,4 @@
 //! Bindings to liboqs
-#![no_std]
 
 #[allow(clippy::all)]
 #[allow(non_upper_case_globals)]

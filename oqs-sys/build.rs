@@ -24,9 +24,6 @@ fn generate_bindings(outdir: &Path, headerfile: &str, filter: &str) {
         .allowlist_type(filter)
         .allowlist_function(filter)
         .allowlist_var(filter)
-        // Use core and libc
-        .use_core()
-        .ctypes_prefix("::libc")
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
