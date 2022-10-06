@@ -10,6 +10,7 @@ use core::ptr::NonNull;
 use cstr_core::CStr;
 #[cfg(feature = "std")]
 use std::ffi::CStr;
+use std::os;
 
 use crate::ffi::sig as ffi;
 use crate::newtype_buffer;
@@ -27,6 +28,7 @@ pub type Message = [u8];
 
 macro_rules! implement_sigs {
     { $(($feat: literal) $sig: ident: $oqs_id: ident),* $(,)? } => (
+
         /// Supported algorithms by liboqs
         ///
         /// They may not all be enabled
@@ -41,13 +43,13 @@ macro_rules! implement_sigs {
             )*
         }
 
-        fn algorithm_to_id(algorithm: Algorithm) -> *const libc::c_char {
+        fn algorithm_to_id(algorithm: Algorithm) -> *const os::raw::c_char {
             let id: &[u8] = match algorithm {
                 $(
                     Algorithm::$sig => &ffi::$oqs_id[..],
                 )*
             };
-            id as *const _ as *const libc::c_char
+            id as *const _ as *const os::raw::c_char
         }
 
         $(
@@ -185,7 +187,7 @@ impl Algorithm {
     /// Provides a pointer to the id of the algorithm
     ///
     /// For use with the FFI api methods
-    pub fn to_id(self) -> *const libc::c_char {
+    pub fn to_id(self) -> *const os::raw::c_char {
         algorithm_to_id(self)
     }
 

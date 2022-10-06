@@ -10,6 +10,7 @@ use core::ptr::NonNull;
 use cstr_core::CStr;
 #[cfg(feature = "std")]
 use std::ffi::CStr;
+use std::os;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -40,13 +41,13 @@ macro_rules! implement_kems {
             )*
         }
 
-        fn algorithm_to_id(algorithm: Algorithm) -> *const libc::c_char {
+        fn algorithm_to_id(algorithm: Algorithm) -> *const os::raw::c_char {
             let id: &[u8] = match algorithm {
                 $(
                     Algorithm::$kem => &ffi::$oqs_id[..],
                 )*
             };
-            id as *const _ as *const libc::c_char
+            id as *const _ as *const os::raw::c_char
         }
 
         $(
@@ -170,7 +171,7 @@ impl Algorithm {
     /// Provides a pointer to the id of the algorithm
     ///
     /// For use with the FFI api methods
-    pub fn to_id(self) -> *const libc::c_char {
+    pub fn to_id(self) -> *const os::raw::c_char {
         algorithm_to_id(self)
     }
 
@@ -351,10 +352,7 @@ impl Kem {
     }
 
     /// Derive a keypair from a seed
-    pub fn derive_keypair<'a>(
-        &self,
-        ikm: &'a [u8]
-    ) -> Result<(PublicKey, SecretKey)> {
+    pub fn derive_keypair<'a>(&self, ikm: &'a [u8]) -> Result<(PublicKey, SecretKey)> {
         if ikm.len() != 64 {
             return Err(Error::InvalidLength);
         }
@@ -374,7 +372,7 @@ impl Kem {
             pk.bytes.set_len(kem.length_public_key);
             sk.bytes.set_len(kem.length_secret_key);
         }
-        Ok((pk,sk))
+        Ok((pk, sk))
     }
 
     /// Encapsulate to the provided public key
